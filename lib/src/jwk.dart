@@ -445,7 +445,16 @@ class JsonWebKeyStore {
   }
 
   bool _isValidKeyFor(JsonWebKey key, JoseHeader header, String operation) {
+    print('isValidkeyFor: ${header.keyId}? ${(header.keyId == key.keyId)}');
     if (header.keyId != key.keyId) return false;
+
+    print('isKeyUsable for algo: ${key.usableForAlgorithm(
+        operation == 'encrypt' || operation == 'decrypt'
+            ? header.encryptionAlgorithm
+            : header.algorithm)}');
+
+    print('isKeyUsable for Operation: ${key.usableForOperation(operation)}');
+
     return key.usableForAlgorithm(
             operation == 'encrypt' || operation == 'decrypt'
                 ? header.encryptionAlgorithm

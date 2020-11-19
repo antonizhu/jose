@@ -1,6 +1,8 @@
 /// [JSON Object Signing and Encryption](https://tools.ietf.org/html/rfc7515)
 library jose.jose;
 
+import 'dart:developer';
+
 import 'util.dart';
 import 'jws.dart';
 import 'jwe.dart';
@@ -200,11 +202,17 @@ abstract class JoseObject {
   /// wrapping the key. By default, all algorithms are allowed except `none`.
   Future<JosePayload> getPayload(JsonWebKeyStore keyStore,
       {List<String> allowedAlgorithms}) async {
+    print('is recipients empty? ${recipients == null}, otherwise, length is ${recipients.length}');
+    recipients.forEach((r) { print('recipient to json: ${r.toJson()}'); });
     for (var r in recipients) {
       var header = _headerFor(r);
+      log('recipient ${header.keyId}, header algo is: ${header.algorithm} ...#all: $header');
+      print ('allowed algo is null? ${allowedAlgorithms == null}');
       if (allowedAlgorithms != null &&
           !allowedAlgorithms.contains(header.algorithm)) continue;
       if (allowedAlgorithms == null && header.algorithm == 'none') continue;
+      
+      keyStore.findJsonWebKeys(header, 'decrypt').length.then((value) => print('key found: $value'));
       await for (var key in keyStore.findJsonWebKeys(
           header,
           this is JsonWebSignature
